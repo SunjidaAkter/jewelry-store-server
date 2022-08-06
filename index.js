@@ -22,11 +22,34 @@ async function run() {
     try {
         await client.connect();
         const productsCollection = client.db("jewelry-store").collection("products");
+        const orderCollection = client.db('jewelry-store').collection('orders');
 
 
         app.get("/products", async (req, res) => {
             const query = {};
             const cursor = productsCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+
+
+        app.get('/products/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await productsCollection.findOne(query);
+            res.send(result);
+        });
+
+
+        app.post("/orders", async (req, res) => {
+            const doc = req.body;
+            const result = await orderCollection.insertOne(doc);
+            res.send(result);
+        });
+
+        app.get("/orders", async (req, res) => {
+            const query = {};
+            const cursor = orderCollection.find(query);
             const result = await cursor.toArray();
             res.send(result);
         });
